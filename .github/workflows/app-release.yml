@@ -93,7 +93,7 @@ jobs:
           # The tag being released, with the history and the other tags the
           # notes are written from. A manual run for an existing tag gets
           # exactly what a tag push gets; without fetch-tags it saw none.
-          ref: refs/tags/${{ inputs.tag }}
+          ref: ${{ inputs.tag }}
           fetch-depth: 0
           fetch-tags: true
           filter: blob:none
