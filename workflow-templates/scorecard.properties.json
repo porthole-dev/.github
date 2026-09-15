@@ -1,0 +1,6 @@
+{
+  "name": "OpenSSF Scorecard",
+  "description": "Weekly supply-chain security assessment, published for the README badge. Public repositories only.",
+  "iconName": "octicon shield-check",
+  "categories": ["Code Scanning"]
+}
