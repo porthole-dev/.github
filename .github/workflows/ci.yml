@@ -1,0 +1,74 @@
+# Checks for the organization's shared actions and workflows, run on the
+# actions as they are in this commit.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # Superseded pull request runs are cancelled; every push to main keeps its result.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Shellcheck
+        run: shellcheck actions/*/*.sh
+      - name: Test the commit check
+        run: sh actions/commit-check/test-commit-check.sh
+
+  commit-check:
+    name: Commit check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      # Only to reach the action in this commit; other repositories need no checkout.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: actions
+          persist-credentials: false
+      - uses: ./actions/commit-check
+
+  workflow-lint:
+    name: Workflow lint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./actions/workflow-lint
+
+  ci-passed:
+    # The one check to require in rulesets: it fails if any job above failed or
+    # was cancelled, so adding a job never needs a settings change.
+    name: CI passed
+    if: ${{ !cancelled() }}
+    needs: [test, commit-check, workflow-lint]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check the results of every job
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "results: $RESULTS"
+          case " $RESULTS " in
+          *" failure "* | *" cancelled "*)
+            echo "::error::A required job failed or was cancelled"
+            exit 1
+            ;;
+          esac
