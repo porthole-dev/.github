@@ -90,7 +90,12 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          # The tag being released, with the history and the other tags the
+          # notes are written from. A manual run for an existing tag gets
+          # exactly what a tag push gets; without fetch-tags it saw none.
+          ref: refs/tags/${{ inputs.tag }}
           fetch-depth: 0
+          fetch-tags: true
           filter: blob:none
           persist-credentials: false
       - name: Write the release notes
