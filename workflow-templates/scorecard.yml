@@ -1,0 +1,41 @@
+# OpenSSF Scorecard: a weekly supply-chain security assessment (pinned
+# dependencies, token permissions, dangerous workflows, branch protection,
+# signed releases, ...), published to api.scorecard.dev for the README badge
+# and uploaded to code scanning. Public repositories only: private ones need
+# GitHub Advanced Security.
+#
+# Scorecard rejects published results from a workflow with top-level env or
+# write permissions, a job-level env, or steps other than checkout,
+# upload-artifact, codeql upload-sarif and scorecard-action; keep it bare.
+name: Scorecard
+
+on:
+  push:
+    branches: [$default-branch]
+  schedule:
+    - cron: "11 5 * * 2"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  analysis:
+    name: Scorecard analysis
+    if: github.event.repository.visibility == 'public'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      security-events: write # upload the SARIF to code scanning
+      id-token: write # publish the results to api.scorecard.dev
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ossf/scorecard-action@2d1146689b8cda280b9bc96326124645441f03bc # v2.4.4
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: true
+      - uses: github/codeql-action/upload-sarif@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4.38.0
+        with:
+          sarif_file: results.sarif
