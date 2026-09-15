@@ -1,5 +1,5 @@
 # Checks for the organization's shared actions and workflows, run on the
-# actions as they are in this commit.
+# actions as they are in this commit ("$/": this repository at this commit).
 name: CI
 
 on:
@@ -35,12 +35,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      # Only to reach the action in this commit; other repositories need no checkout.
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          sparse-checkout: actions
-          persist-credentials: false
-      - uses: ./actions/commit-check
+      - uses: $/actions/commit-check
 
   workflow-lint:
     name: Workflow lint
@@ -50,7 +45,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: ./actions/workflow-lint
+      - uses: $/actions/workflow-lint
 
   ci-passed:
     name: CI passed
@@ -59,10 +54,6 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          sparse-checkout: actions
-          persist-credentials: false
-      - uses: ./actions/ci-passed
+      - uses: $/actions/ci-passed
         with:
           results: ${{ join(needs.*.result, ' ') }}
