@@ -1,0 +1,43 @@
+# The aggregate result of a workflow, as one check to require in rulesets:
+# it fails if any job it needs failed or was cancelled, so adding, renaming or
+# path-filtering a job never needs a settings change. Skipped jobs count as
+# passed (a job skipped by its own condition has nothing to report).
+#
+#   ci-passed:
+#     name: CI passed
+#     if: ${{ !cancelled() }}
+#     needs: [build, test, commit-check, workflow-lint]
+#     runs-on: ubuntu-24.04
+#     timeout-minutes: 5
+#     steps:
+#       - uses: porthole-dev/.github/actions/ci-passed@<commit sha> # <tag>
+#         with:
+#           results: ${{ join(needs.*.result, ' ') }}
+name: CI passed
+description: Fail unless every needed job succeeded or was skipped
+inputs:
+  results:
+    description: "The needed jobs' results, space separated: join(needs.*.result, ' ')"
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Check the results of every job
+      shell: sh
+      env:
+        RESULTS: ${{ inputs.results }}
+      run: |
+        echo "results: $RESULTS"
+        if [ -z "$RESULTS" ]; then
+          echo "::error::No job results were passed"
+          exit 1
+        fi
+        for result in $RESULTS; do
+          case $result in
+          success | skipped) ;;
+          *)
+            echo "::error::A required job did not succeed ($result)"
+            exit 1
+            ;;
+          esac
+        done

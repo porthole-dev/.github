@@ -53,22 +53,16 @@ jobs:
       - uses: ./actions/workflow-lint
 
   ci-passed:
-    # The one check to require in rulesets: it fails if any job above failed or
-    # was cancelled, so adding a job never needs a settings change.
     name: CI passed
     if: ${{ !cancelled() }}
     needs: [test, commit-check, workflow-lint]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - name: Check the results of every job
-        env:
-          RESULTS: ${{ join(needs.*.result, ' ') }}
-        run: |
-          echo "results: $RESULTS"
-          case " $RESULTS " in
-          *" failure "* | *" cancelled "*)
-            echo "::error::A required job failed or was cancelled"
-            exit 1
-            ;;
-          esac
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: actions
+          persist-credentials: false
+      - uses: ./actions/ci-passed
+        with:
+          results: ${{ join(needs.*.result, ' ') }}
