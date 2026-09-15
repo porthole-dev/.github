@@ -134,7 +134,7 @@ jobs:
           archive=$RUNNER_TEMP/assets/$name-$version.tar.gz
           curl -fsSL --retry 3 -H "Authorization: Bearer $GH_TOKEN" -o "$archive" \
             "https://codeload.github.com/$GITHUB_REPOSITORY/tar.gz/refs/tags/$TAG"
-          top=$(tar -tzf "$archive" | head -n1)
+          top=$(tar -tzf "$archive" 2>/dev/null | head -n1) # SIGPIPE from head
           [ "$top" = "$name-$version/" ] || { echo "::error::Unexpected archive layout: $top"; exit 1; }
           (cd "$RUNNER_TEMP/assets" && sha512sum "$name-$version.tar.gz" > SHA512SUMS && cat SHA512SUMS)
           {
