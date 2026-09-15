@@ -1,0 +1,15 @@
+# Weekly, grouped updates of the actions used here and by the shared actions.
+# The cooldown leaves a new release a week to be pulled if it is compromised.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directories: ["/", "/actions/*"]
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: ci

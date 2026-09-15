@@ -1,0 +1,29 @@
+# The organization's commit check: attribution trailers on every commit a push,
+# pull request or merge group brings, and a DCO sign-off on every commit meant
+# to land (pull requests and merge groups). The rules are in CONTRIBUTING.md
+# and in commit-check.sh.
+#
+# Needs no checkout: it fetches the commits it checks (commits only, no files).
+# Use it as the only step of a job named "Commit check", so the check has the
+# same name in every repository:
+#
+#   commit-check:
+#     name: Commit check
+#     runs-on: ubuntu-24.04
+#     timeout-minutes: 5
+#     steps:
+#       - uses: porthole-dev/.github/actions/commit-check@<commit sha> # <tag>
+name: Commit check
+description: Check commit attribution trailers and DCO sign-off
+inputs:
+  token:
+    description: Token with read access to the repository's contents
+    default: ${{ github.token }}
+runs:
+  using: composite
+  steps:
+    - name: Check trailers and DCO sign-off
+      shell: sh
+      env:
+        TOKEN: ${{ inputs.token }}
+      run: sh "$GITHUB_ACTION_PATH/run.sh"
