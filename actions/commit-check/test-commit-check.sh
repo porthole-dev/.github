@@ -92,4 +92,36 @@ merge pass "Merge pull request #1"
 merge fail "Merge pull request #2
 
 Co-authored-by: Claude <noreply@anthropic.com>"
+# A bot author is exempt from the sign-off only when --bot-author names it,
+# and is never exempt from the attribution rules.
+botid='dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>'
+git checkout -q -b bot HEAD~1
+GIT_AUTHOR_NAME='dependabot[bot]' \
+GIT_AUTHOR_EMAIL='49699333+dependabot[bot]@users.noreply.github.com' \
+	git commit -q --allow-empty -m "ci: bump the actions group"
+
+if sh "$check" HEAD~1 HEAD --dco >/dev/null 2>&1; then
+	echo "FAIL: a bot commit passed the DCO without --bot-author" >&2
+	exit 1
+fi
+if ! sh "$check" HEAD~1 HEAD --dco --bot-author="$botid" >/dev/null 2>&1; then
+	echo "FAIL: --bot-author did not exempt the bot from the DCO" >&2
+	exit 1
+fi
+if sh "$check" HEAD~1 HEAD --dco --bot-author='someone else <nobody@example.org>' >/dev/null 2>&1; then
+	echo "FAIL: --bot-author exempted an author it does not name" >&2
+	exit 1
+fi
+
+# The exemption covers the sign-off and nothing else.
+git commit -q --allow-empty --author="$botid" -m "ci: bump
+
+Co-authored-by: Claude <noreply@anthropic.com>"
+if sh "$check" HEAD~2 HEAD --dco --bot-author="$botid" >/dev/null 2>&1; then
+	echo "FAIL: --bot-author suppressed the wrong-attribution check" >&2
+	exit 1
+fi
+git checkout -q -
+git branch -q -D bot
+
 echo "commit-check: all cases pass"

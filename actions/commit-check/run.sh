@@ -13,11 +13,20 @@ set -eu
 here=$(cd "$(dirname "$0")" && pwd)
 event=$GITHUB_EVENT_PATH
 dco=
+bot=
 case "$GITHUB_EVENT_NAME" in
 pull_request | pull_request_target)
 	base=$(jq -r .pull_request.base.sha "$event")
 	head=$(jq -r .pull_request.head.sha "$event")
 	dco=--dco
+	# A bot cannot certify the Developer Certificate of Origin: only a person
+	# can. Dependabot's pull requests are therefore exempt from the sign-off,
+	# but never from the attribution rules. The exemption keys on the numeric
+	# user id GitHub puts in the event, not on the commit's author name or
+	# email, because those are whatever the committer typed.
+	if [ "$(jq -r '.pull_request.user.id' "$event")" = 49699333 ]; then
+		bot='dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>'
+	fi
 	;;
 merge_group)
 	base=$(jq -r .merge_group.base_sha "$event")
@@ -79,4 +88,4 @@ git rev-parse -q --verify "$base^{commit}" >/dev/null || {
 echo "checking $(git rev-parse --short "$base")..$(git rev-parse --short "$head") ${dco:+(with DCO sign-off)}"
 # $dco is empty or one word.
 # shellcheck disable=SC2086
-exec sh "$here/commit-check.sh" "$base" "$head" $dco
+exec sh "$here/commit-check.sh" "$base" "$head" $dco ${bot:+--bot-author="$bot"}
