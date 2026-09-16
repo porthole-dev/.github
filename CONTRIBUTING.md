@@ -22,7 +22,10 @@ git commit -s                   # when you commit
 git rebase --signoff origin/main   # to sign off commits you already made
 ```
 
-An AI tool never signs off, because only a person can certify the DCO. If an
+An AI tool never signs off, because only a person can certify the DCO, and
+neither does a bot: Dependabot's dependency pull requests are exempt from the
+sign-off (the check recognises it by its GitHub user id, not by what the commit
+says). Every other rule still applies to them. If an
 assistant prepared your commits, review them and sign them off yourself.
 Maintainers can do the same on a pull request with porthole's
 `tools/ph-pr-signoff.py OWNER/REPO NUMBER`.
