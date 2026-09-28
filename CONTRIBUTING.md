@@ -1,59 +1,45 @@
 # Contributing to porthole-dev
 
-This is the default guide for every repository in the organization. A
-repository with its own `CONTRIBUTING.md` adds to it.
+Changes go through a reviewed pull request with passing required checks.
+Each repository documents its own build and test commands. Keep one topic per PR.
 
-## Pull requests
+For local commit-message checks in this repository, run
+`git config core.hooksPath .githooks`. The hook rejects forbidden attribution
+and session links. CI remains the source of truth for whether the contributor
+must provide a DCO sign-off; internal branches are exempt and external forks
+are checked against the event identity.
 
-- Every change goes through a pull request; nothing is pushed to a default
-  branch directly.
-- CI must pass. The **Commit check** job enforces the rules below.
-- Keep a pull request to one topic. Subjects follow the upstream style of the
-  project you are touching, for example `subsystem: what changed`.
+## Review and sign-off
 
-## Sign-off (required)
+Internal branches are certified by a maintainer reviewing and merging them.
+Their commits do not require a DCO sign-off. External fork pull requests require
+`Signed-off-by:` matching each non-merge commit's human author. The merge queue
+checks attribution again; the originating PR already checked external DCO.
+Dependabot is exempt from DCO only when identified by GitHub's numeric user ID.
 
-Every commit carries a `Signed-off-by:` line from its author: your
-certification under the [Developer Certificate of Origin](https://developercertificate.org/)
-that you have the right to submit the change under the repository's licence.
+Only a human can certify the Developer Certificate of Origin. An assistant
+never adds a sign-off on anyone's behalf. Upstream submissions follow the
+receiving project's current rules and are handled by a human.
 
-```sh
-git commit -s                   # when you commit
-git rebase --signoff origin/main   # to sign off commits you already made
-```
+## AI assistance
 
-An AI tool never signs off, because only a person can certify the DCO, and
-neither does a bot: Dependabot's dependency pull requests are exempt from the
-sign-off (the check recognises it by its GitHub user id, not by what the commit
-says). Every other rule still applies to them. If an
-assistant prepared your commits, review them and sign them off yourself.
-Maintainers can do the same on a pull request with porthole's
-`tools/ph-pr-signoff.py OWNER/REPO NUMBER`.
+Disclose AI help with `Assisted-by: <tool>`. Human-only work needs no disclosure.
+Never name an AI as a co-author, co-developer, or signatory. Do not include
+session links or generated-with/generated-by lines in commits, PRs, or issues.
+The shared commit check validates commits and PR bodies, including body edits.
 
-## Disclosing AI assistance
+## Evidence and privacy
 
-If an AI tool helped write a change, say so with a trailer before your
-sign-off:
+Say what was executed and what was only inspected. Hardware claims include the
+image hash, installed kernel/packages, test command, date, and redacted evidence.
+A package build does not prove a phone feature works.
 
-```
-Assisted-by: Claude
-Signed-off-by: Your Name <you@example.org>
-```
+Do not commit private network identifiers, serials, IMEIs, home paths, credentials,
+private logs, or vendor firmware. Public images follow the release firmware and
+first-boot policy. Each device-specific service needs systemd and OpenRC support.
 
-Linux kernel patches use the kernel's documented form, `Assisted-by: LLM`.
-Never list an AI as `Co-authored-by:` (that tag is for people), and do not add
-session links or "Generated with" lines. Contributions written without AI
-need no `Assisted-by:`.
+## Upstream
 
-## Never commit private data
-
-No IP or MAC addresses of your own networks, network names, device serials or
-IMEIs, home directory paths, tokens, keys, or vendor firmware blobs. Redact to
-a stable placeholder instead of deleting the evidence.
-
-## Upstream projects
-
-Patches go upstream only to projects that accept AI-assisted work, under their
-own rules, and are always sent by a person. Nothing from this organization is
-submitted to postmarketOS, whose policy does not accept AI-generated
-contributions. Please do not report issues with these ports to postmarketOS.
+Preserve original authorship and licensing. Check the receiving project's AI
+policy before proposing upstream work. This organization does not submit
+AI-assisted work to postmarketOS or redirect downstream bug reports there.

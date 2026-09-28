@@ -8,15 +8,28 @@
 #   - an AI tool or bot named in Signed-off-by: (a sign-off is a person's
 #     Developer Certificate of Origin)
 #   - Claude-Session: trailers, AI session URLs, "Generated with [...]" lines
-#   - a malformed Assisted-by: or Generated-by: trailer. Both are optional;
+#   - a malformed Assisted-by: trailer or any Generated-by: trailer. Disclosures
 #     they are expected when an AI tool was involved (see CONTRIBUTING.md).
-# With --dco (pull requests and merge groups), every commit except a merge
+# With --dco (external pull requests), every commit except a merge
 # commit also needs a Signed-off-by: matching its author.
 # --bot-author exempts exactly one author string from the sign-off, for a bot
 # that cannot certify the DCO. The caller must establish that identity from
 # something GitHub controls (run.sh uses the event's numeric user id), never
 # from the commit itself.
 set -eu
+ai='claude|anthropic|openai|chatgpt|copilot|gemini|codex|cursor agent|\[bot\]'
+wrong="^(co-authored-by|co-developed-by):.*($ai)|^signed-off-by:.*($ai)|^claude-session:|claude\.ai/code/session_|chatgpt\.com/(share|c)/|^.{0,8}generated with \[|^generated-by:"
+scan() {
+	if grep -qiE "$wrong" "$1"; then
+		echo "::error::forbidden attribution or session link"
+		return 1
+	fi
+	if grep -iE '^assisted-by:' "$1" | grep -qvE '^Assisted-by: [^[:space:]]'; then
+		echo "::error::malformed Assisted-by: trailer"
+		return 1
+	fi
+}
+if [ "${1:-}" = --scan ]; then scan "$2"; exit $?; fi
 base=$1 head=$2
 dco=''
 bot=''
@@ -28,8 +41,6 @@ for arg in "$@"; do
 	*) echo "commit-check.sh: unknown argument $arg" >&2; exit 2 ;;
 	esac
 done
-ai='claude|anthropic|openai|chatgpt|copilot|gemini|codex|cursor agent|\[bot\]'
-wrong="^(co-authored-by|co-developed-by):.*($ai)|^signed-off-by:.*($ai)|^claude-session:|claude\.ai/code/session_|chatgpt\.com/(share|c)/|^.{0,8}generated with \["
 fail=0
 n=0
 range=$head
@@ -42,7 +53,7 @@ for c in $(git rev-list "$range"); do
 		echo "::error::$short: AI attribution in a trailer or line where it does not belong"
 		fail=1
 	fi
-	if printf '%s\n' "$msg" | grep -iE '^(assisted|generated)-by:' | grep -qvE '^(Assisted|Generated)-by: [^[:space:]]'; then
+	if printf '%s\n' "$msg" | grep -iE '^assisted-by:' | grep -qvE '^Assisted-by: [^[:space:]]'; then
 		echo "::error::$short: malformed Assisted-by: or Generated-by: trailer (expected 'Assisted-by: <tool>')"
 		fail=1
 	fi

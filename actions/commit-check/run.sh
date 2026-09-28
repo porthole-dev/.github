@@ -2,8 +2,8 @@
 # run.sh -- find the commits this workflow run brings, fetch them (commits
 # only, no trees or files) and run commit-check.sh on them.
 #
-#   pull_request  base branch commit .. pull request head, with --dco
-#   merge_group   merge group base .. merge group head, with --dco
+#   pull_request  base .. head, with --dco only for an external fork
+#   merge_group   base .. head, DCO already checked on the originating PR
 #   push          previous tip .. new tip; after a force push or on a new
 #                 branch, from the parent of the first commit the push brought
 #   other events  nothing to check (a notice says so)
@@ -11,14 +11,19 @@
 # Env: TOKEN (read access to the repository), GITHUB_* from the runner.
 set -eu
 here=$(cd "$(dirname "$0")" && pwd)
+# shellcheck source=actions/commit-check/event-policy.sh
+. "$here/event-policy.sh"
 event=$GITHUB_EVENT_PATH
-dco=
+dco=$(event_policy "$GITHUB_EVENT_NAME" "$event")
 bot=
 case "$GITHUB_EVENT_NAME" in
 pull_request | pull_request_target)
 	base=$(jq -r .pull_request.base.sha "$event")
 	head=$(jq -r .pull_request.head.sha "$event")
-	dco=--dco
+	body=$(mktemp)
+	jq -r '.pull_request.body // ""' "$event" > "$body"
+	sh "$here/commit-check.sh" --scan "$body" || { rm -f "$body"; exit 1; }
+	rm -f "$body"
 	# A bot cannot certify the Developer Certificate of Origin: only a person
 	# can. Dependabot's pull requests are therefore exempt from the sign-off,
 	# but never from the attribution rules. The exemption keys on the numeric
@@ -31,7 +36,6 @@ pull_request | pull_request_target)
 merge_group)
 	base=$(jq -r .merge_group.base_sha "$event")
 	head=$(jq -r .merge_group.head_sha "$event")
-	dco=--dco
 	;;
 push)
 	base=$(jq -r .before "$event")

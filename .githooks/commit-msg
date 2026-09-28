@@ -1,0 +1,4 @@
+#!/bin/sh
+# Local fast feedback; CI still applies the event-specific DCO rule.
+root=$(CDPATH='' cd -- "$(dirname "$0")/.." && pwd)
+exec sh "$root/actions/commit-check/commit-check.sh" --scan "$1"

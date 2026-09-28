@@ -6,6 +6,7 @@ on:
   push:
     branches: [main]
   pull_request:
+    types: [opened, edited, synchronize, reopened]
   merge_group:
 
 permissions:
@@ -26,7 +27,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Shellcheck
-        run: shellcheck actions/*/*.sh
+        run: shellcheck actions/*/*.sh .githooks/commit-msg
       - name: Test the commit check
         run: sh actions/commit-check/test-commit-check.sh
 

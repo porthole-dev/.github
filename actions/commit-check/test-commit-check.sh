@@ -28,7 +28,7 @@ expect pass "" "human change, no trailers"
 expect pass "" "change
 
 Assisted-by: Claude"
-expect pass "" "change
+expect fail "" "change
 
 Generated-by: some-tool 1.0"
 expect pass --dco "change
@@ -125,3 +125,31 @@ git checkout -q -
 git branch -q -D bot
 
 echo "commit-check: all cases pass"
+
+# Exercise the exact event classifier used by run.sh, including a base repo
+# that is itself a fork, missing identity, and the merge queue.
+# shellcheck source=actions/commit-check/event-policy.sh
+. "$(dirname "$check")/event-policy.sh"
+printf '%s\n' '{"pull_request":{"head":{"repo":{"full_name":"org/repo","fork":true}},"base":{"repo":{"full_name":"org/repo"}}}}' > event.json
+[ -z "$(event_policy pull_request event.json)" ]
+printf '%s\n' '{"pull_request":{"head":{"repo":{"full_name":"other/repo"}},"base":{"repo":{"full_name":"org/repo"}}}}' > event.json
+[ "$(event_policy pull_request event.json)" = --dco ]
+printf '%s\n' '{}' > event.json
+[ "$(event_policy pull_request event.json)" = --dco ]
+[ -z "$(event_policy merge_group event.json)" ]
+printf '%s\n' 'Co-authored-by: Codex' > body
+if sh "$check" --scan body; then exit 1; fi
+printf '%s\n' 'Assisted-by: Codex' > body
+sh "$check" --scan body
+echo 'event policy and body scan: all cases pass'
+
+# The opt-in local hook is the same policy as the CI action.
+root=$(cd "$(dirname "$check")/../.." && pwd)
+printf '%s\n' 'change' 'Co-authored-by: Codex' > message
+if sh "$root/.githooks/commit-msg" message >/dev/null 2>&1; then
+	echo "FAIL: local hook accepted forbidden attribution" >&2
+	exit 1
+fi
+printf '%s\n' 'change' '' 'Assisted-by: Codex' > message
+sh "$root/.githooks/commit-msg" message
+echo 'commit-msg hook: all cases pass'
