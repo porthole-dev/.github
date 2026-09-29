@@ -2,6 +2,10 @@
 
 Bringing phones back to life on mainline Linux.
 
+[Website](https://porthole-dev.github.io/porthole/) ·
+[Downloads](https://porthole-dev.github.io/porthole/downloads/) ·
+[Device support](https://porthole-dev.github.io/porthole/devices/)
+
 porthole-dev builds tools, packages and patches for [Nura](https://nura.eco),
 starting with an experimental mainline Linux port for the Google Pixel 2 XL
 (`taimen`). Hardware support is published only when a dated report verifies it
@@ -36,6 +40,6 @@ separately. Hardware validation is recorded against the exact image hash.
 
 ## Contributing
 
-Use the [organization policy](../CONTRIBUTING.md). Internal changes need maintainer
+Use the [organization policy](https://github.com/porthole-dev/.github/blob/main/CONTRIBUTING.md). Internal changes need maintainer
 review; external fork PRs additionally require their human authors' DCO sign-offs.
 Disclose AI assistance with `Assisted-by:`. See each repository's `AI.md`.
