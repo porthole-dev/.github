@@ -1,9 +1,6 @@
-# .github
+# Porthole community
 
-> **Unofficial.** Not affiliated with or endorsed by Nura, Alpine Linux,
-> Google, Qualcomm or Anthropic. Report problems here, not to them.
->
-> See [AI.md](AI.md) for our assistance and review policy.
+[Website](https://porthole-dev.github.io/porthole/) · [Downloads](https://porthole-dev.github.io/porthole/downloads/) · [Device support](https://porthole-dev.github.io/porthole/devices/)
 
 Organization profile and shared community health files for
 [porthole-dev](https://github.com/porthole-dev): the default contributing guide,
