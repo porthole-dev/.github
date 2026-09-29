@@ -2,18 +2,15 @@
 
 Bringing phones back to life on mainline Linux.
 
-porthole-dev builds the tools, packages and patches to run
-[Nura](https://nura.eco) on phones their vendors stopped
-supporting, starting with the Google Pixel 2 XL (taimen): an experimental mainline Linux port. Hardware support is published only when
-a dated report verifies it on a specific image.
+porthole-dev builds tools, packages and patches for [Nura](https://nura.eco),
+starting with an experimental mainline Linux port for the Google Pixel 2 XL
+(`taimen`). Hardware support is published only when a dated report verifies it
+on a specific image.
 
 > **Unofficial.** Not affiliated with or endorsed by Nura, Alpine Linux,
 > Google or Qualcomm. Report problems here, not to them.
 >
-> **AI-assisted.** Much of this work is developed with an AI coding assistant
-> and disclosed with an `Assisted-by:` trailer on every commit. Every change is
-> reviewed by a human, who is responsible for it. Each
-> repository's `AI.md` explains how.
+> Each repository's `AI.md` explains its assistance and review policy.
 
 ## Repositories
 
@@ -29,11 +26,9 @@ a dated report verifies it on a specific image.
 
 ## Start here
 
-- [Devices and downloads](https://porthole-dev.github.io/porthole/devices/google-taimen/):
-  release availability and dated evidence; experimental ports may have no images.
-- [Build and contribute](https://porthole-dev.github.io/porthole/new-host/).
+- [Porthole](https://github.com/porthole-dev/porthole): device status, build
+  guidance and release policy. Experimental ports may have no image.
 - [Packages](https://github.com/porthole-dev/pmos-packages): signed APK repositories.
-- [Project status](https://porthole-dev.github.io/porthole/project-status/).
 
 Package recipes live in pmaports. CI checks changed packages; approved publication
 updates the signed repository. Image candidates are assembled and verified

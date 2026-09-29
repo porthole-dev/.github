@@ -6,8 +6,8 @@
 #   2. attest the archive's build provenance (public repositories only:
 #      artifact attestations in private repositories need GitHub Enterprise
 #      Cloud);
-#   3. open or update a pull request in porthole-dev/pmaports that moves the
-#      app's aport to the new version and archive checksum.
+#   3. open or update a bot-authored pull request in porthole-dev/pmaports
+#      that moves the app's aport to the new version and archive checksum.
 #
 # Step 3 needs the PMAPORTS_TOKEN secret: a fine-grained token with owner
 # porthole-dev, access to the pmaports repository only, and read and write
@@ -229,9 +229,10 @@ jobs:
           git diff --exit-code >/dev/null && { echo "::error::$apkbuild did not change"; exit 1; }
           git diff
 
-          # The aport's maintainer authors the change and signs it off before merge.
-          maintainer=$(sed -n 's/^maintainer="\(.*\)"$/\1/p' "$apkbuild")
-          git -c user.name="${maintainer% <*}" -c user.email="$(echo "${maintainer##*<}" | tr -d '>')" \
+          # Keep automation's authorship explicit. A maintainer reviews and
+          # merges this internal PR; the workflow cannot sign for a human.
+          git -c user.name="github-actions[bot]" \
+            -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
             commit -q -a -F - <<EOF
           $APORT: $subject
 
@@ -244,7 +245,7 @@ jobs:
             exit 0
           fi
           git push -q --force origin "HEAD:refs/heads/$branch"
-          body="Moves \`$APORT\` to [$TAG](https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG), opened by the release workflow of $GITHUB_REPOSITORY. The checksum is that of the tag's source archive (SHA512SUMS in the release). Sign off before merging."
+          body="Moves \`$APORT\` to [$TAG](https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG), opened by the release workflow of $GITHUB_REPOSITORY. The checksum is that of the tag's source archive (SHA512SUMS in the release). Review the version, archive checksum and package build before merging."
           number=$(gh pr list -R "$PMAPORTS" --head "$branch" --state open --json number --jq '.[0].number // empty')
           if [ -n "$number" ]; then
             gh pr edit "$number" -R "$PMAPORTS" --title "$APORT: $subject" --body "$body"
