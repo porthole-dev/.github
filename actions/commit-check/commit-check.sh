@@ -49,6 +49,13 @@ for c in $(git rev-list "$range"); do
 	n=$((n + 1))
 	short=$(git rev-parse --short "$c")
 	msg=$(git log -1 --format=%B "$c")
+	author=$(git log -1 --format='%an <%ae>' "$c")
+	# GitHub-verified Dependabot adds this footer itself. It is metadata,
+	# never a human DCO certificate; ignore only these exact bytes for the
+	# verified bot author, retaining every other attribution check.
+	if [ "$bot" = 'dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>' ] && [ "$author" = "$bot" ]; then
+		msg=$(printf '%s\n' "$msg" | grep -vxF 'Signed-off-by: dependabot[bot] <support@github.com>' || :)
+	fi
 	if printf '%s\n' "$msg" | grep -qiE "$wrong"; then
 		echo "::error::$short: AI attribution in a trailer or line where it does not belong"
 		fail=1

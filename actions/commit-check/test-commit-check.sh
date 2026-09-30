@@ -113,6 +113,17 @@ if sh "$check" HEAD~1 HEAD --dco --bot-author='someone else <nobody@example.org>
 	exit 1
 fi
 
+# Dependabot's generated footer is metadata only for the verified bot.
+git commit -q --allow-empty --author="$botid" -m "ci: automated update
+
+Signed-off-by: dependabot[bot] <support@github.com>"
+if ! sh "$check" HEAD~1 HEAD --dco --bot-author="$botid" >/dev/null 2>&1; then
+	echo "FAIL: verified Dependabot footer was rejected" >&2; exit 1
+fi
+if sh "$check" HEAD~1 HEAD --bot-author='unverified' >/dev/null 2>&1; then
+	echo "FAIL: unverified bot footer was accepted" >&2; exit 1
+fi
+
 # The exemption covers the sign-off and nothing else.
 git commit -q --allow-empty --author="$botid" -m "ci: bump
 

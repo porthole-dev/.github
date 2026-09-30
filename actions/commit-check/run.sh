@@ -38,6 +38,9 @@ merge_group)
 	head=$(jq -r .merge_group.head_sha "$event")
 	;;
 push)
+	if [ "$(jq -r '.sender.id' "$event")" = 49699333 ]; then
+		bot='dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>'
+	fi
 	base=$(jq -r .before "$event")
 	head=$(jq -r .after "$event")
 	;;
