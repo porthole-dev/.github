@@ -4,7 +4,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: ["**"]
   pull_request:
     types: [opened, edited, synchronize, reopened]
   merge_group:
@@ -28,6 +28,8 @@ jobs:
           persist-credentials: false
       - name: Shellcheck
         run: shellcheck actions/*/*.sh .githooks/commit-msg
+      - name: Test release publication policy
+        run: python3 .github/test-release-policy.py
       - name: Test the commit check
         run: sh actions/commit-check/test-commit-check.sh
 
