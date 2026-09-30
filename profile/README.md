@@ -3,7 +3,7 @@
 Bringing phones back to life on mainline Linux.
 
 [Website](https://porthole-dev.github.io/porthole/) ·
-[Downloads](https://porthole-dev.github.io/porthole/downloads/) ·
+[Downloads](https://porthole-dev.github.io/porthole/images/) ·
 [Device support](https://porthole-dev.github.io/porthole/devices/)
 
 porthole-dev builds tools, packages and patches for [Nura](https://nura.eco),

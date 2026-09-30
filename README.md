@@ -1,6 +1,6 @@
 # Porthole community
 
-[Website](https://porthole-dev.github.io/porthole/) · [Downloads](https://porthole-dev.github.io/porthole/downloads/) · [Device support](https://porthole-dev.github.io/porthole/devices/)
+[Website](https://porthole-dev.github.io/porthole/) · [Downloads](https://porthole-dev.github.io/porthole/images/) · [Device support](https://porthole-dev.github.io/porthole/devices/)
 
 Organization profile and shared community health files for
 [porthole-dev](https://github.com/porthole-dev): the default contributing guide,
