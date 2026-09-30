@@ -5,7 +5,8 @@
 #
 # Rejected in every commit, whoever wrote it:
 #   - an AI tool named in Co-authored-by: or Co-developed-by:
-#   - an AI tool or bot named in Signed-off-by: (a sign-off is a person's
+#   - an AI tool or bot named in Signed-off-by: (except Dependabot metadata;
+#     its automatic footer never satisfies the DCO check) (a sign-off is a person's
 #     Developer Certificate of Origin)
 #   - Claude-Session: trailers, AI session URLs, "Generated with [...]" lines
 #   - a malformed Assisted-by: trailer or any Generated-by: trailer. Disclosures
@@ -50,10 +51,11 @@ for c in $(git rev-list "$range"); do
 	short=$(git rev-parse --short "$c")
 	msg=$(git log -1 --format=%B "$c")
 	author=$(git log -1 --format='%an <%ae>' "$c")
-	# GitHub-verified Dependabot adds this footer itself. It is metadata,
+	# Dependabot adds this exact footer itself. It is metadata,
 	# never a human DCO certificate; ignore only these exact bytes for the
-	# verified bot author, retaining every other attribution check.
-	if [ "$bot" = 'dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>' ] && [ "$author" = "$bot" ]; then
+	# exact bot author, retaining every other attribution check. The DCO
+	# exemption below still requires the event-verified bot identity.
+	if [ "$author" = 'dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>' ]; then
 		msg=$(printf '%s\n' "$msg" | grep -vxF 'Signed-off-by: dependabot[bot] <support@github.com>' || :)
 	fi
 	if printf '%s\n' "$msg" | grep -qiE "$wrong"; then

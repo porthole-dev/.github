@@ -120,8 +120,8 @@ Signed-off-by: dependabot[bot] <support@github.com>"
 if ! sh "$check" HEAD~1 HEAD --dco --bot-author="$botid" >/dev/null 2>&1; then
 	echo "FAIL: verified Dependabot footer was rejected" >&2; exit 1
 fi
-if sh "$check" HEAD~1 HEAD --bot-author='unverified' >/dev/null 2>&1; then
-	echo "FAIL: unverified bot footer was accepted" >&2; exit 1
+if sh "$check" HEAD~1 HEAD --dco --bot-author='unverified' >/dev/null 2>&1; then
+	echo "FAIL: unverified bot footer certified the DCO" >&2; exit 1
 fi
 
 # The exemption covers the sign-off and nothing else.
